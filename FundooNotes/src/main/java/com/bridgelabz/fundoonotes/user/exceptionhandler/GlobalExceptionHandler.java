@@ -1,4 +1,4 @@
-package com.bridgelabz.fundoonotes.user.controllers;
+package com.bridgelabz.fundoonotes.user.exceptionhandler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

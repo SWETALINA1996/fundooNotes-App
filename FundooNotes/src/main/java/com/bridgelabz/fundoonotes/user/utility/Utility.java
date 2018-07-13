@@ -33,7 +33,7 @@ public class Utility {
 		else if (!isValidEmail(registrationDTO.getEmailId())) {
 			
 			throw new RegistrationException("EmailId must be in 'abcd@mail.com' format");
-		} else if (!isValidPassword(registrationDTO.getPassword())) {
+		} else if (registrationDTO.getPassword().length() < 8) {
 			
 			throw new RegistrationException("Password must contain 8 characters");
 		} else if (!registrationDTO.getPassword().equals(registrationDTO.getConfirmPassword())) {
