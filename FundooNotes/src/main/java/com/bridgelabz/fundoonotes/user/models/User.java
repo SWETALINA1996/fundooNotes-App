@@ -18,6 +18,16 @@ public class User
 	private String password;
 
 	private String phoneNumber;
+	
+	private boolean activeStatus;
+
+	public boolean isActiveStatus() {
+		return activeStatus;
+	}
+
+	public void setActiveStatus(boolean activeStatus) {
+		this.activeStatus = activeStatus;
+	}
 
 	public String getUserId() {
 		return userId;

@@ -3,13 +3,9 @@ package com.bridgelabz.fundoonotes.user.security;
 import java.util.Date;
 
 import javax.xml.bind.DatatypeConverter;
-
-import org.springframework.stereotype.Component;
-
 import com.bridgelabz.fundoonotes.user.models.User;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -31,25 +27,23 @@ final static String key = "Sweta" ;
 		//long time = System.currentTimeMillis();
 		
 		long nowMillis = System.currentTimeMillis();
-		
 		Date date = new Date(nowMillis);
 		
-		JwtBuilder builder = Jwts.builder().setId(userEmail).setIssuedAt(date).setSubject(userName)
-				.signWith(SignatureAlgorithm.HS256, key);
+		return Jwts.builder().setId(userEmail).setIssuedAt(date).setSubject(userName)
+				.signWith(SignatureAlgorithm.HS256, key).compact();
 		
-		return builder.compact();
 	}
 	
 	/**To claim token
 	 * @param jwt
 	 */
-	public void parseJWT(String jwt)
+	public String parseJWT(String jwt)
 	{
 
 		Claims claims = Jwts.parser().setSigningKey(DatatypeConverter.parseBase64Binary(key)).parseClaimsJws(jwt)
 				.getBody();
-		
-	    claims.getId();
-		claims.getSubject();
+	    String claimId = claims.getId();
+		//claims.getSubject();
+		return claimId;
 	}
 }

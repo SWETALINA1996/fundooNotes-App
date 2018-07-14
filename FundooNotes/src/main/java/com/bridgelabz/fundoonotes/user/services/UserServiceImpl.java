@@ -1,14 +1,19 @@
 package com.bridgelabz.fundoonotes.user.services;
 
+
 import java.util.Optional;
 
-import javax.security.auth.login.LoginException;
+import javax.mail.MessagingException;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.bridgelabz.fundoonotes.user.exceptions.ActivationException;
+import com.bridgelabz.fundoonotes.user.exceptions.LoginException;
 import com.bridgelabz.fundoonotes.user.exceptions.RegistrationException;
+import com.bridgelabz.fundoonotes.user.models.Email;
 import com.bridgelabz.fundoonotes.user.models.LoginDTO;
 import com.bridgelabz.fundoonotes.user.models.RegistrationDTO;
 import com.bridgelabz.fundoonotes.user.models.User;
@@ -24,6 +29,9 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private PasswordEncoder encoder;
+	
+	@Autowired
+	private EmailService emailService;
 
 	@Override
 	public String login(LoginDTO loginDTO) throws LoginException {
@@ -45,7 +53,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void register(RegistrationDTO registrationDTO) throws RegistrationException {
+	public void register(RegistrationDTO registrationDTO) throws RegistrationException, MessagingException {
 
 		Optional<User> optional = userRepository.findByEmailId(registrationDTO.getEmailId());
 		if(optional.isPresent()) {
@@ -63,7 +71,32 @@ public class UserServiceImpl implements UserService {
 		userRepository.save(user);
 		
 		JWTtokenProvider token = new JWTtokenProvider();
-		token.generator(user);
+		String generatedToken = token.generator(user);
+		
+		Email email = new Email();
+		email.setTo(registrationDTO.getEmailId());
+		email.setSubject("Link for activation");
+		email.setText("http://localhost:8080/activate/?token=" +generatedToken);
+		
+		emailService.sendEmail(email);
+	}
+
+	@Override
+	public void activate(String token) throws ActivationException {
+
+		JWTtokenProvider tokenProvider = new JWTtokenProvider();
+		String emailID = tokenProvider.parseJWT(token); 
+		//malformed
+		
+		Optional<User> optional = userRepository.findByEmailId(emailID);
+		if(!optional.isPresent()) {
+			throw new ActivationException("User not present");
+		}
+		
+		User user = optional.get();
+		user.setActiveStatus(true);
+		
+		userRepository.save(user);
 	}
 
 }
