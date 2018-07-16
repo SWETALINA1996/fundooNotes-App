@@ -1,4 +1,4 @@
-package com.bridgelabz.fundoonotes.user.security;
+package com.bridgelabz.fundoonotes.user.configurations;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

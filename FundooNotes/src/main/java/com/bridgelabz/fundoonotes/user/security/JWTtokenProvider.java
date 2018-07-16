@@ -1,15 +1,13 @@
 package com.bridgelabz.fundoonotes.user.security;
 
 import java.util.Date;
-
 import javax.xml.bind.DatatypeConverter;
-import com.bridgelabz.fundoonotes.user.models.User;
-
+import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
-
+@Component
 public class JWTtokenProvider {
 
 final static String key = "Sweta" ;
@@ -18,19 +16,15 @@ final static String key = "Sweta" ;
 	 * @param user
 	 * @return
 	 */
-	public String generator(User user) 
+	public String generator(String userId) 
 	{
-		String userName = user.getUserName();
-		
-		String userEmail = user.getEmailId();
 		
 		//long time = System.currentTimeMillis();
 		
 		long nowMillis = System.currentTimeMillis();
 		Date date = new Date(nowMillis);
 		
-		return Jwts.builder().setId(userEmail).setIssuedAt(date).setSubject(userName)
-				.signWith(SignatureAlgorithm.HS256, key).compact();
+		return Jwts.builder().setId(userId).setIssuedAt(date).signWith(SignatureAlgorithm.HS256, key).compact();
 		
 	}
 	

@@ -16,6 +16,7 @@ import com.bridgelabz.fundoonotes.user.exceptions.RegistrationException;
 import com.bridgelabz.fundoonotes.user.models.Email;
 import com.bridgelabz.fundoonotes.user.models.LoginDTO;
 import com.bridgelabz.fundoonotes.user.models.RegistrationDTO;
+import com.bridgelabz.fundoonotes.user.models.ResetPasswordDTO;
 import com.bridgelabz.fundoonotes.user.models.User;
 import com.bridgelabz.fundoonotes.user.repositories.UserRepository;
 import com.bridgelabz.fundoonotes.user.security.JWTtokenProvider;
@@ -29,6 +30,9 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private PasswordEncoder encoder;
+	
+	@Autowired
+	private JWTtokenProvider tokenProvider;
 	
 	@Autowired
 	private EmailService emailService;
@@ -45,6 +49,9 @@ public class UserServiceImpl implements UserService {
 
 		if (!(encoder.matches(loginDTO.getPassword(), dbUser.getPassword()))) {
 			throw new LoginException("You have entered a wrorng password");
+		}
+		else if(!dbUser.isActiveStatus()) {
+			throw new LoginException("Please activate your account before login");
 		}
 
 		
@@ -70,8 +77,16 @@ public class UserServiceImpl implements UserService {
 
 		userRepository.save(user);
 		
-		JWTtokenProvider token = new JWTtokenProvider();
-		String generatedToken = token.generator(user);
+		optional = userRepository.findByEmailId(registrationDTO.getEmailId());
+		if(!optional.isPresent()) {
+			throw new RegistrationException("Please register again");
+		}
+		
+		String userId = optional.get().getUserId();
+
+		String generatedToken = tokenProvider.generator(userId);
+		System.out.println(generatedToken);
+		//nullchecker
 		
 		Email email = new Email();
 		email.setTo(registrationDTO.getEmailId());
@@ -84,7 +99,6 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void activate(String token) throws ActivationException {
 
-		JWTtokenProvider tokenProvider = new JWTtokenProvider();
 		String emailID = tokenProvider.parseJWT(token); 
 		//malformed
 		
@@ -95,6 +109,49 @@ public class UserServiceImpl implements UserService {
 		
 		User user = optional.get();
 		user.setActiveStatus(true);
+		
+		userRepository.save(user);
+	}
+
+
+	@Override
+	public void forgotPassword(String emailId) throws LoginException, MessagingException {
+		
+		if(emailId == null) {
+			throw new LoginException("Enter valid emailId");
+		}
+		
+		Optional<User> optional = userRepository.findByEmailId(emailId);
+		if(!optional.isPresent()) {
+			throw new LoginException("User not present");
+		}
+		
+		String userId = optional.get().getUserId();
+		String generatedToken = tokenProvider.generator(userId);
+	
+		Email email = new Email();
+		email.setTo(emailId);
+		email.setSubject("Reset your Password");
+		email.setText("http://localhost:8080/forgotpassword/?token=" +generatedToken);
+		
+		emailService.sendEmail(email);
+		
+		
+	}
+	
+	@Override
+	public void resetPassword(String token , ResetPasswordDTO password) throws LoginException {
+		
+		String userId = tokenProvider.parseJWT(token);
+		
+		Optional<User> optional = userRepository.findById(userId);
+		
+		if(!password.getPassword().equals(password.getConfirmPassword())){
+			throw new LoginException("Password not matching..");
+		}
+		
+		User user = optional.get();
+		user.setPassword(encoder.encode(password.getPassword()));
 		
 		userRepository.save(user);
 	}

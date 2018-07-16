@@ -16,6 +16,7 @@ import com.bridgelabz.fundoonotes.user.exceptions.LoginException;
 import com.bridgelabz.fundoonotes.user.exceptions.RegistrationException;
 import com.bridgelabz.fundoonotes.user.models.LoginDTO;
 import com.bridgelabz.fundoonotes.user.models.RegistrationDTO;
+import com.bridgelabz.fundoonotes.user.models.ResetPasswordDTO;
 import com.bridgelabz.fundoonotes.user.models.Response;
 import com.bridgelabz.fundoonotes.user.services.UserService;
 
@@ -52,6 +53,28 @@ public class UserController {
 		Response dto = new Response();
 		dto.setMessage("Activated User");
 		dto.setStatus(3);
+		return new ResponseEntity<Response>(dto , HttpStatus.OK);
+		
+	}
+	
+	@RequestMapping(value = "/forgotPassword" , method = RequestMethod.POST)
+	public ResponseEntity<Response> forgotPassword(@RequestParam(value = "emailId") String emailId ) throws LoginException, MessagingException{
+		
+		userService.forgotPassword(emailId);;
+		Response dto = new Response();
+		dto.setMessage("Link sent to change the password");
+		dto.setStatus(4);
+		return new ResponseEntity<Response>(dto , HttpStatus.OK);
+		
+	}
+	
+	@RequestMapping(value = "/resetPassword" , method = RequestMethod.POST)
+	public ResponseEntity<Response> resetPassword(@RequestParam(value = "token") String token , @RequestBody ResetPasswordDTO resetDTO) throws LoginException, MessagingException{
+		
+		userService.resetPassword(token, resetDTO);;
+		Response dto = new Response();
+		dto.setMessage("Password has been successfully reset.");
+		dto.setStatus(5);
 		return new ResponseEntity<Response>(dto , HttpStatus.OK);
 		
 	}

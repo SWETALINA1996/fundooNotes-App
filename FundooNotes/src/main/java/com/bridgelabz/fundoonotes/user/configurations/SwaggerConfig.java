@@ -1,4 +1,4 @@
-package com.bridgelabz.fundoonotes.user.utility;
+package com.bridgelabz.fundoonotes.user.configurations;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,15 +24,13 @@ public class SwaggerConfig {
 	}
 
 	private Predicate<String> postPaths() {
-		return or(regex("/api/posts.*"), regex("/api/javainuse.*"));
+		return or(regex("/.*"), regex("/.*"));
 	}
 
-	private ApiInfo apiInfo() {
-		return new ApiInfoBuilder().title("JavaInUse API")
-				.description("JavaInUse API reference for developers")
-				.termsOfServiceUrl("http://javainuse.com")
-				.contact("javainuse@gmail.com").license("JavaInUse License")
-				.licenseUrl("javainuse@gmail.com").version("1.0").build();
-	}
+	@SuppressWarnings("deprecation")
+	  private ApiInfo apiInfo() {
+        return new ApiInfoBuilder().title("FundooNoteAppln").description("Notes Taking using Spring Boot ANd MongoDB ")
+                .contact("dharaparanjape.1007@gmail.com").version("1.0").build();
+    }
 
 }

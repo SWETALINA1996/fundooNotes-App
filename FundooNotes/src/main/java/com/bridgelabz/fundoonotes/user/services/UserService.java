@@ -6,6 +6,7 @@ import com.bridgelabz.fundoonotes.user.exceptions.LoginException;
 import com.bridgelabz.fundoonotes.user.exceptions.RegistrationException;
 import com.bridgelabz.fundoonotes.user.models.LoginDTO;
 import com.bridgelabz.fundoonotes.user.models.RegistrationDTO;
+import com.bridgelabz.fundoonotes.user.models.ResetPasswordDTO;
 
 public interface UserService
 {
@@ -15,5 +16,9 @@ public interface UserService
 	void register(RegistrationDTO registrationDTO) throws RegistrationException, MessagingException;
 	
 	void activate(String token) throws ActivationException;
+	
+	void forgotPassword(String emailId) throws LoginException, MessagingException;
+	
+	void resetPassword(String token , ResetPasswordDTO password) throws LoginException;
 
 }
