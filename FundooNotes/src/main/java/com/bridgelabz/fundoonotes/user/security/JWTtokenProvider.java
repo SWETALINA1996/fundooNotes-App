@@ -10,7 +10,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Component
 public class JWTtokenProvider {
 
-final static String key = "Sweta" ;
+private final static String key = "Sweta" ;
 	
 	/**To generate the token
 	 * @param user

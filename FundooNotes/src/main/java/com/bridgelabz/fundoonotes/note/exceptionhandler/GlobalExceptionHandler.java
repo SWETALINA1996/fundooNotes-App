@@ -1,47 +1,57 @@
-package com.bridgelabz.fundoonotes.user.exceptionhandler;
+package com.bridgelabz.fundoonotes.note.exceptionhandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.bridgelabz.fundoonotes.note.exceptions.CreationException;
+import com.bridgelabz.fundoonotes.note.exceptions.NoteNotFoundException;
+import com.bridgelabz.fundoonotes.note.exceptions.UnAuthorisedAccess;
+import com.bridgelabz.fundoonotes.note.exceptions.UserNotFoundException;
 import com.bridgelabz.fundoonotes.user.controllers.UserController;
-import com.bridgelabz.fundoonotes.user.exceptions.ActivationException;
-import com.bridgelabz.fundoonotes.user.exceptions.LoginException;
-import com.bridgelabz.fundoonotes.user.exceptions.RegistrationException;
 import com.bridgelabz.fundoonotes.user.models.Response;
 
-@ControllerAdvice
 public class GlobalExceptionHandler {
 
 	public static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-	  @ExceptionHandler(RegistrationException.class)
-	    public ResponseEntity<Response> handleRegistrationException(RegistrationException e) {
+	  @ExceptionHandler(CreationException.class)
+	    public ResponseEntity<Response> handleRegistrationException(CreationException e) {
 	       
 		  logger.error(e.getMessage());
 		  
 		  Response response = new Response();
 	        response.setMessage(e.getMessage());
-	        response.setStatus(-3);
+	        response.setStatus(-10);
 	        return new ResponseEntity<Response>(response, HttpStatus.BAD_REQUEST);
 	    }
 
-	    @ExceptionHandler(LoginException.class)
-	    public ResponseEntity<Response> handleLoginException(LoginException e) {
+	    @ExceptionHandler(NoteNotFoundException.class)
+	    public ResponseEntity<Response> handleLoginException(NoteNotFoundException e) {
 	    	
 	    	logger.error(e.getMessage());
 	    	
 	        Response response = new Response();
 	        response.setMessage(e.getMessage());
-	        response.setStatus(-2);
+	        response.setStatus(-11);
 	        return new ResponseEntity<Response>(response, HttpStatus.BAD_REQUEST);
 	    }
 	    
-	    @ExceptionHandler(ActivationException.class)
-	    public ResponseEntity<Response> handleActivationException(ActivationException e) {
+	    @ExceptionHandler(UnAuthorisedAccess.class)
+	    public ResponseEntity<Response> handleActivationException(UnAuthorisedAccess e) {
+	    	
+	    	logger.error(e.getMessage());
+	    	
+	        Response response = new Response();
+	        response.setMessage(e.getMessage());
+	        response.setStatus(-4);
+	        return new ResponseEntity<Response>(response, HttpStatus.BAD_REQUEST);
+	    }
+	    
+	    @ExceptionHandler(UserNotFoundException.class)
+	    public ResponseEntity<Response> handleActivationException(UserNotFoundException e) {
 	    	
 	    	logger.error(e.getMessage());
 	    	
@@ -62,5 +72,4 @@ public class GlobalExceptionHandler {
 	        response.setStatus(-1);
 	        return new ResponseEntity<Response>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
-	
 }

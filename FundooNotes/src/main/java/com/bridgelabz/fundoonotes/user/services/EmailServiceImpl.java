@@ -18,16 +18,16 @@ public class EmailServiceImpl implements EmailService {
 	
 	@Override
 	public void sendEmail(Email email) throws MessagingException {
-		
+
 		MimeMessage message = mailSender.createMimeMessage();
-		MimeMessageHelper messageHelper = new MimeMessageHelper(message , true);
+		MimeMessageHelper messageHelper = new MimeMessageHelper(message);
 		
 		messageHelper.setTo(email.getTo());
 		messageHelper.setSubject(email.getSubject());
 		messageHelper.setText(email.getText());
 		
 		mailSender.send(message);
-		
+
 	}
 
 }

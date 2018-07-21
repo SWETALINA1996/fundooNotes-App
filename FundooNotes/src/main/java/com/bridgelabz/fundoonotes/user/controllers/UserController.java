@@ -1,7 +1,10 @@
 package com.bridgelabz.fundoonotes.user.controllers;
 
 import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,13 +28,15 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
-
+	
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public ResponseEntity<Response> login(@RequestBody LoginDTO loginDTO) throws LoginException, com.bridgelabz.fundoonotes.user.exceptions.LoginException {
-		userService.login(loginDTO);
+	public ResponseEntity<Response> login(@RequestBody LoginDTO loginDTO , HttpServletResponse resp) throws LoginException, com.bridgelabz.fundoonotes.user.exceptions.LoginException {
+		
+		userService.login(loginDTO , resp);
 		Response dto = new Response();
 		dto.setMessage("successfully logged in with email: " + loginDTO.getEmailId());
 		dto.setStatus(1);
+		
 		return new ResponseEntity<Response>(dto, HttpStatus.OK);
 	}
 
@@ -43,16 +48,18 @@ public class UserController {
 		Response dto = new Response();
 		dto.setMessage("Successfully Registered");
 		dto.setStatus(2);
+		
 		return new ResponseEntity<Response>(dto, HttpStatus.CREATED);
 	}
 	
 	@RequestMapping(value = "/activate" , method = RequestMethod.GET)
 	public ResponseEntity<Response> activateUser(@RequestParam(value = "token") String token ) throws ActivationException{
-		
+				
 		userService.activate(token);
 		Response dto = new Response();
 		dto.setMessage("Activated User");
 		dto.setStatus(3);
+		
 		return new ResponseEntity<Response>(dto , HttpStatus.OK);
 		
 	}
@@ -60,10 +67,11 @@ public class UserController {
 	@RequestMapping(value = "/forgotPassword" , method = RequestMethod.POST)
 	public ResponseEntity<Response> forgotPassword(@RequestParam(value = "emailId") String emailId ) throws LoginException, MessagingException{
 		
-		userService.forgotPassword(emailId);;
+		userService.forgotPassword(emailId);
 		Response dto = new Response();
 		dto.setMessage("Link sent to change the password");
 		dto.setStatus(4);
+		
 		return new ResponseEntity<Response>(dto , HttpStatus.OK);
 		
 	}
@@ -71,10 +79,11 @@ public class UserController {
 	@RequestMapping(value = "/resetPassword" , method = RequestMethod.POST)
 	public ResponseEntity<Response> resetPassword(@RequestParam(value = "token") String token , @RequestBody ResetPasswordDTO resetDTO) throws LoginException, MessagingException{
 		
-		userService.resetPassword(token, resetDTO);;
+		userService.resetPassword(token, resetDTO);
 		Response dto = new Response();
 		dto.setMessage("Password has been successfully reset.");
 		dto.setStatus(5);
+		
 		return new ResponseEntity<Response>(dto , HttpStatus.OK);
 		
 	}
