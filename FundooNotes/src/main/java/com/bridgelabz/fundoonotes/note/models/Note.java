@@ -1,6 +1,7 @@
 package com.bridgelabz.fundoonotes.note.models;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -25,7 +26,38 @@ public class Note {
 	
 	private boolean isTrash;
 	
+	private boolean pin;
+	
+	private boolean archive;
+	
 	private Date reminder;
+	//private Reminder reminder;
+	
+	List<Label> labelList;
+	/*
+	public Reminder getRemind() {
+		return remind;
+	}
+
+	public void setRemind(Reminder remind) {
+		this.remind = remind;
+	}*/
+
+	public List<Label> getLabelList() {
+		return labelList;
+	}
+
+	public void setLabelList(List<Label> labelList) {
+		this.labelList = labelList;
+	}
+
+	public boolean isPin() {
+		return pin;
+	}
+
+	public void setPin(boolean pin) {
+		this.pin = pin;
+	}
 
 	public String getId() {
 		return id;
@@ -90,6 +122,16 @@ public class Note {
 	public void setTrash(boolean isTrash) {
 		this.isTrash = isTrash;
 	}
+
+	public boolean isArchive() {
+		return archive;
+	}
+
+	public void setArchive(boolean archive) {
+		this.archive = archive;
+	}
+	
+
 
 	public Date getReminder() {
 		return reminder;

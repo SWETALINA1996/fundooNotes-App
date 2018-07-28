@@ -1,6 +1,7 @@
 package com.bridgelabz.fundoonotes.note.models;
 
 import java.util.Date;
+import java.util.List;
 
 public class CreateNoteDTO {
 
@@ -8,12 +9,77 @@ public class CreateNoteDTO {
 	
 	private String description;
 	
-	private String color;
+	private String color = "#FFFFFF";
 
 	private Date createdAt;
 	
+	private Date reminder;
+	
+	private boolean pin;
+	
+	private boolean isTrash;
+	
+	public boolean isTrash() {
+		return isTrash;
+	}
+
+	public void setTrash(boolean isTrash) {
+		this.isTrash = isTrash;
+	}
+
+	private boolean archive;
+	
+	List<String> labelList;
+	
+	public boolean isPin() {
+		return pin;
+	}
+
+	public void setPin(boolean pin) {
+		this.pin = pin;
+	}
+
+	public boolean isArchive() {
+		return archive;
+	}
+
+	public void setArchive(boolean archive) {
+		this.archive = archive;
+	}
+
+
+	
+	
+	//private Reminder remind;
+
+	//Label
+	
+	/*public Reminder getRemind() {
+		return remind;
+	}
+
+	public void setRemind(Reminder remind) {
+		this.remind = remind;
+	}*/
+
+	public List<String> getLabelList() {
+		return labelList;
+	}
+
+	public void setLabelList(List<String> labelList) {
+		this.labelList = labelList;
+	}
+
 	public String getColor() {
 		return color;
+	}
+
+	public Date getReminder() {
+		return reminder;
+	}
+
+	public void setReminder(Date reminder) {
+		this.reminder = reminder;
 	}
 
 	public void setColor(String color) {

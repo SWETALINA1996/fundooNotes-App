@@ -7,19 +7,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import com.bridgelabz.fundoonotes.user.filters.LoggerInterceptor;
+import com.bridgelabz.fundoonotes.user.security.JWTtokenProvider;
+
 
 public class NoteInterceptor extends HandlerInterceptorAdapter {
 	
-	private static final Logger logger = LoggerFactory.getLogger(LoggerInterceptor.class);
+	private static final Logger logger = LoggerFactory.getLogger(NoteInterceptor.class);
 
+	 @Override
 	 public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
              Object handler) throws Exception {
 		 
-		 request.getHeader("token");
-		// tokenProvider.parseJWT(token);
+		JWTtokenProvider tokenProvider = new JWTtokenProvider();
+		 String tokenId= request.getHeader("token");
+		 String userId=tokenProvider.parseJWT(tokenId);
+		 request.setAttribute("token", userId);
+		 System.out.println("UserId:"+userId);
+		 logger.info("Before handling the request"+request.getRequestURI());
 		 
-				return true;
+		return true;
 
 }
 	

@@ -34,7 +34,7 @@ public class UserController {
 		
 		userService.login(loginDTO , resp);
 		Response dto = new Response();
-		dto.setMessage("successfully logged in with email: " + loginDTO.getEmailId());
+		dto.setMessage("successfully logged in");
 		dto.setStatus(1);
 		
 		return new ResponseEntity<Response>(dto, HttpStatus.OK);

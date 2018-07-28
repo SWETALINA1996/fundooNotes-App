@@ -7,11 +7,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.bridgelabz.fundoonotes.note.filters.NoteInterceptor;
 
 @Configuration
-public class InterceptorConfig implements WebMvcConfigurer{
+public class InterceptorConfiguration implements WebMvcConfigurer{
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(new NoteInterceptor()).addPathPatterns("/note/**");
+		registry.addInterceptor(new NoteInterceptor()).addPathPatterns("/notes/**");
 	}
 
 }

@@ -34,6 +34,7 @@ public class SwaggerConfig {
         return new ApiInfoBuilder().title("FundooNoteAppln").description("Notes Taking using Spring Boot ANd MongoDB ")
                 .contact("dharaparanjape.1007@gmail.com").version("1.0").build();
     }
+	
 	@Bean
 	public SecurityConfiguration security() {
 		return new SecurityConfiguration(null, null, null, null, "token",

@@ -1,6 +1,7 @@
 package com.bridgelabz.fundoonotes.note.models;
 
 import java.util.Date;
+import java.util.List;
 
 public class ViewNoteDTO {
 
@@ -13,10 +14,32 @@ public class ViewNoteDTO {
 	private String color;
 	
 	private Date createdAt;
+		
+	private Date reminder;
 	
-	private Date updatedAt;
-	
+	public Date getReminder() {
+		return reminder;
+	}
+
+	public void setReminder(Date reminder) {
+		this.reminder = reminder;
+	}
+
 	private boolean isTrash;
+	
+	private boolean pin;
+	
+	private boolean archive;
+	
+	List<Label> labelList;
+
+	public List<Label> getLabelList() {
+		return labelList;
+	}
+
+	public void setLabelList(List<Label> labelList) {
+		this.labelList = labelList;
+	}
 
 	public String getId() {
 		return id;
@@ -58,20 +81,28 @@ public class ViewNoteDTO {
 		this.createdAt = createdAt;
 	}
 
-	public Date getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(Date updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-
 	public boolean isTrash() {
 		return isTrash;
 	}
 
 	public void setTrash(boolean isTrash) {
 		this.isTrash = isTrash;
+	}
+
+	public boolean isPin() {
+		return pin;
+	}
+
+	public void setPin(boolean pin) {
+		this.pin = pin;
+	}
+
+	public boolean isArchive() {
+		return archive;
+	}
+
+	public void setArchive(boolean archive) {
+		this.archive = archive;
 	}
 	 
 	
