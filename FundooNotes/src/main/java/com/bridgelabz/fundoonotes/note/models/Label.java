@@ -1,9 +1,11 @@
 package com.bridgelabz.fundoonotes.note.models;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+//import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.elasticsearch.annotations.Document;
 
-@Document(collection = "Labels")
+//@Document(collection = "Labels")
+@Document(indexName = "database", type = "label")
 public class Label {
 	
 	@Id

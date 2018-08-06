@@ -1,11 +1,13 @@
 package com.bridgelabz.fundoonotes.user.models;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.elasticsearch.annotations.Document;
+//import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.stereotype.Component;
 
 
-@Document(collection = "Users")
+//@Document(collection = "Users")
+@Document(indexName = "fundoo", type = "user")
 public class User 
 {
 	@Id

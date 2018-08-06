@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.bridgelabz.fundoonotes.user.exceptions.ActivationException;
+import com.bridgelabz.fundoonotes.user.exceptions.InvalidIdException;
 import com.bridgelabz.fundoonotes.user.exceptions.LoginException;
 import com.bridgelabz.fundoonotes.user.exceptions.RegistrationException;
 import com.bridgelabz.fundoonotes.user.models.Email;
@@ -19,6 +20,8 @@ import com.bridgelabz.fundoonotes.user.models.RegistrationDTO;
 import com.bridgelabz.fundoonotes.user.models.ResetPasswordDTO;
 import com.bridgelabz.fundoonotes.user.models.User;
 import com.bridgelabz.fundoonotes.user.rabbitmq.IProducer;
+import com.bridgelabz.fundoonotes.user.repositories.RedisRepositoryImpl;
+import com.bridgelabz.fundoonotes.user.repositories.UserESRepository;
 import com.bridgelabz.fundoonotes.user.repositories.UserRepository;
 import com.bridgelabz.fundoonotes.user.security.JWTtokenProvider;
 import com.bridgelabz.fundoonotes.user.utility.Utility;
@@ -30,10 +33,16 @@ public class UserServiceImpl implements UserService {
 	private UserRepository userRepository;
 	
 	@Autowired
+	private UserESRepository esUser;
+	
+	@Autowired
 	private PasswordEncoder encoder;
 	
 	@Autowired
 	private JWTtokenProvider tokenProvider;
+	
+	@Autowired
+	private RedisRepositoryImpl redisRepo;
 	
 	@Autowired
 	private IProducer producer;
@@ -44,13 +53,14 @@ public class UserServiceImpl implements UserService {
 		
 		Utility.isLoginValidate(loginDTO);
 		
-		Optional<User> optional = userRepository.findByEmailId(loginDTO.getEmailId());
+		//Optional<User> optional = userRepository.findByEmailId(loginDTO.getEmailId());
+		Optional<User> optionalUser = esUser.findByEmailId(loginDTO.getEmailId());
 
-		if (!optional.isPresent()) {
+		if (!optionalUser.isPresent()) {
 			throw new LoginException("You are not registered with us!!");
 		}
 
-		User dbUser = optional.get();
+		User dbUser = optionalUser.get();
 
 		if (!(encoder.matches(loginDTO.getPassword(), dbUser.getPassword()))) {
 			throw new LoginException("You have entered a wrorng password");
@@ -71,8 +81,9 @@ public class UserServiceImpl implements UserService {
 
 		Utility.isRegistrationValidate(registrationDTO);
 		
-		Optional<User> optional = userRepository.findByEmailId(registrationDTO.getEmailId());
-		if(optional.isPresent()) {
+		//Optional<User> optional = userRepository.findByEmailId(registrationDTO.getEmailId());
+		Optional<User> optionalUser = esUser.findByEmailId(registrationDTO.getEmailId());
+		if(optionalUser.isPresent()) {
 			throw new RegistrationException("You are already Registered");
 		}
 		
@@ -83,9 +94,11 @@ public class UserServiceImpl implements UserService {
 		user.setEmailId(registrationDTO.getEmailId());
 
 		userRepository.save(user);
+		esUser.save(user);
 		
-		optional = userRepository.findByEmailId(registrationDTO.getEmailId());
-		String userId = optional.get().getUserId();
+		//optionalUser = userRepository.findByEmailId(registrationDTO.getEmailId());
+		optionalUser = esUser.findByEmailId(registrationDTO.getEmailId());
+		String userId = optionalUser.get().getUserId();
 
 		String generatedToken = tokenProvider.generator(userId);
 		System.out.println(generatedToken);
@@ -111,7 +124,8 @@ public class UserServiceImpl implements UserService {
 		String emailID = tokenProvider.parseJWT(token); 
 		//malformed
 		
-		Optional<User> optional = userRepository.findById(emailID);
+		//Optional<User> optional = userRepository.findById(emailID);
+		Optional<User> optional = esUser.findById(emailID);
 		if(!optional.isPresent()) {
 			throw new ActivationException("User not present");
 		}
@@ -120,29 +134,33 @@ public class UserServiceImpl implements UserService {
 		user.setActiveStatus(true);
 		
 		userRepository.save(user);
+		esUser.save(user);
 	}
 
 
 	@Override
 	public void forgotPassword(String emailId) throws LoginException, MessagingException {
-		
-		//validation
+	
 		if(emailId == null || !Utility.isValidEmail(emailId)) {
 			throw new LoginException("Enter valid emailId");
 		}
 		
-		Optional<User> optional = userRepository.findByEmailId(emailId);
+		//Optional<User> optional = userRepository.findByEmailId(emailId);
+		Optional<User> optional = esUser.findByEmailId(emailId);
+
 		if(!optional.isPresent()) {
 			throw new LoginException("User not present");
 		}
 		
 		String userId = optional.get().getUserId();
-		String generatedToken = tokenProvider.generator(userId);
+		//String generatedToken = tokenProvider.generator(userId);
+		String uuid = Utility.generateUUID();
+		redisRepo.save(uuid, userId);
 	
 		Email email = new Email();
 		email.setTo(emailId);
 		email.setSubject("Reset your Password");
-		email.setText("http://localhost:8080/forgotpassword/?token=" +generatedToken);
+		email.setText("http://localhost:8080/forgotpassword/?token=" +uuid);
 		
 		//emailService.sendEmail(email);
 		producer.produce(email);
@@ -151,24 +169,28 @@ public class UserServiceImpl implements UserService {
 	}
 	
 	@Override
-	public void resetPassword(String token , ResetPasswordDTO passwordDto) throws LoginException {
+	public void resetPassword(String uuid , ResetPasswordDTO passwordDto) throws LoginException, InvalidIdException {
 		
-		/*if(token == null || passwordDto.getPassword() == null || !Utility.isValidPassword(passwordDto.getPassword())) {
-			
-			throw new LoginException("FillUp all the fields properly");
+		//password validation
+		String randomId = redisRepo.find(uuid);
+		/*if(uuid == null || !uuid.equals(randomId)) {
+			System.out.println(uuid);
+			throw new InvalidIdException("Incorrect token");
 		}*/
-		String userId = tokenProvider.parseJWT(token);
-		
-		Optional<User> optional = userRepository.findById(userId);
+		//Optional<User> optionalUser = userRepository.findById(randomId);
+		Optional<User> optionalUser = esUser.findById(randomId);
 		
 		if(!passwordDto.getPassword().equals(passwordDto.getConfirmPassword())){
 			throw new LoginException("Password not matching..");
 		}
 		
-		User user = optional.get();
+		User user = optionalUser.get();
 		user.setPassword(encoder.encode(passwordDto.getPassword()));
 		
 		userRepository.save(user);
+		esUser.save(user);
+		redisRepo.delete(randomId);
+		
 	}
 
 }

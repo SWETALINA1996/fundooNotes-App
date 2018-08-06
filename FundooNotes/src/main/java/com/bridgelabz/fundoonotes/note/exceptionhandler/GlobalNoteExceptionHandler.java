@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.bridgelabz.fundoonotes.note.exceptions.CreationException;
@@ -18,7 +19,8 @@ import com.bridgelabz.fundoonotes.note.exceptions.UserNotFoundException;
 import com.bridgelabz.fundoonotes.user.controllers.UserController;
 import com.bridgelabz.fundoonotes.user.models.Response;
 
-public class GlobalExceptionHandler {
+@ControllerAdvice
+public class GlobalNoteExceptionHandler {
 
 	public static final Logger logger = LoggerFactory.getLogger(UserController.class);
 

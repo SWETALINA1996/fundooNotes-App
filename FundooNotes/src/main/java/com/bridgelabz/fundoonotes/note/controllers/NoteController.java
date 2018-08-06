@@ -18,16 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bridgelabz.fundoonotes.note.exceptions.CreationException;
 import com.bridgelabz.fundoonotes.note.exceptions.DateNotFoundException;
-import com.bridgelabz.fundoonotes.note.exceptions.LabelCreationException;
-import com.bridgelabz.fundoonotes.note.exceptions.LabelNotfoundException;
 import com.bridgelabz.fundoonotes.note.exceptions.NoteNotFoundException;
 import com.bridgelabz.fundoonotes.note.exceptions.NoteNotTrashedException;
 import com.bridgelabz.fundoonotes.note.exceptions.RemainderSetException;
 import com.bridgelabz.fundoonotes.note.exceptions.UnAuthorisedAccess;
 import com.bridgelabz.fundoonotes.note.exceptions.UserNotFoundException;
 import com.bridgelabz.fundoonotes.note.models.CreateNoteDTO;
-import com.bridgelabz.fundoonotes.note.models.LabelDTO;
-import com.bridgelabz.fundoonotes.note.models.LabelViewDTO;
 import com.bridgelabz.fundoonotes.note.models.Note;
 import com.bridgelabz.fundoonotes.note.models.UpdateNoteDTO;
 import com.bridgelabz.fundoonotes.note.models.ViewNoteDTO;
@@ -49,7 +45,8 @@ public class NoteController {
 	 ************************************************************************************************************************************************************/
 	
 	@RequestMapping(value = "/create-note", method = RequestMethod.POST)
-	public ResponseEntity<ViewNoteDTO> create(@RequestBody CreateNoteDTO createNoteDto , HttpServletRequest req , @RequestAttribute("token") String token) throws CreationException{
+	public ResponseEntity<ViewNoteDTO> create(@RequestBody CreateNoteDTO createNoteDto , HttpServletRequest req) throws CreationException{
+		
 		String userId = (String) req.getAttribute("token");
 		ViewNoteDTO viewNote = noteService.createNote(createNoteDto , userId);
 		
@@ -62,10 +59,11 @@ public class NoteController {
 	 * @return
 	 * @throws NoteNotFoundException
 	 * @throws UserNotFoundException
+	 * @throws UnAuthorisedAccess 
 	 *************************************************************************************************************************************************************/
 	
 	@RequestMapping(value = "/update-note", method = RequestMethod.PUT)
-	public ResponseEntity<Response> update(@RequestBody UpdateNoteDTO updateNote , HttpServletRequest req , @RequestAttribute("token") String token) throws NoteNotFoundException, UserNotFoundException{
+	public ResponseEntity<Response> update(@RequestBody UpdateNoteDTO updateNote , HttpServletRequest req) throws NoteNotFoundException, UserNotFoundException, UnAuthorisedAccess{
 		
 		String userId = (String) req.getAttribute("token");
 		noteService.updateNote(updateNote, userId);
@@ -82,12 +80,13 @@ public class NoteController {
 	 * @return
 	 * @throws NoteNotFoundException
 	 * @throws UserNotFoundException
+	 * @throws UnAuthorisedAccess 
 	 ************************************************************************************************************************************/
 	@RequestMapping(value = "/trash-and-restore-note" , method = RequestMethod.PUT)
-	public ResponseEntity<Response> trashNote(@RequestParam String noteId , @RequestParam boolean restore , HttpServletRequest req , @RequestAttribute("token") String token) throws NoteNotFoundException, UserNotFoundException {
+	public ResponseEntity<Response> trashNote(@RequestParam String noteId , @RequestParam boolean trashorrestore , HttpServletRequest req) throws NoteNotFoundException, UserNotFoundException, UnAuthorisedAccess {
 		
 		String userId = (String) req.getAttribute("token");
-		noteService.trashNoteAndRestore(noteId, userId , restore);
+		noteService.trashNoteAndRestore(noteId, userId , trashorrestore);
 		
 		Response dto = new Response();
 		dto.setMessage("Successful");
@@ -104,7 +103,7 @@ public class NoteController {
 	 * @throws UserNotFoundException
 	 */
 	@RequestMapping(value = "/empty-trash" , method = RequestMethod.PUT)
-	public ResponseEntity<Response> trashNote(HttpServletRequest req , @RequestAttribute("token") String token) throws NoteNotFoundException, UserNotFoundException {
+	public ResponseEntity<Response> trashNote(HttpServletRequest req) throws NoteNotFoundException, UserNotFoundException {
 		
 		String userId = (String) req.getAttribute("token");
 		noteService.emptyTrash(userId);
@@ -124,7 +123,7 @@ public class NoteController {
 	 */
 	
 	@RequestMapping(value = "/view-trash", method = RequestMethod.POST)
-	public ResponseEntity<List<Note>> viewTrash(HttpServletRequest req , @RequestAttribute("token") String token) throws CreationException, UserNotFoundException{
+	public ResponseEntity<List<Note>> viewTrash(HttpServletRequest req ) throws CreationException, UserNotFoundException{
 		
 		String userId = (String) req.getAttribute("token");
 		List<Note> note = noteService.viewTrash(userId);
@@ -138,10 +137,11 @@ public class NoteController {
 	 * @throws NoteNotFoundException
 	 * @throws UserNotFoundException
 	 * @throws NoteNotTrashedException 
+	 * @throws UnAuthorisedAccess 
 	 ********************************************************************************************************************************/
 	
 	@RequestMapping(value = "/deleteNote" , method = RequestMethod.DELETE)
-	public ResponseEntity<Response> deleteNote(@RequestParam String noteId , HttpServletRequest req , @RequestAttribute("token") String token) throws NoteNotFoundException, UserNotFoundException, NoteNotTrashedException {
+	public ResponseEntity<Response> deleteNote(@RequestParam String noteId , HttpServletRequest req) throws NoteNotFoundException, UserNotFoundException, NoteNotTrashedException, UnAuthorisedAccess {
 		
 		String userId = (String) req.getAttribute("token");
 		noteService.deleteNote(noteId, userId);
@@ -177,11 +177,12 @@ public class NoteController {
 	 * @throws DateNotFoundException
 	 * @throws RemainderSetException
 	 * @throws ParseException 
+	 * @throws UnAuthorisedAccess 
 	 ***********************************************************************************************************************************************************/
 	
 	@RequestMapping(value = "/reminder", method = RequestMethod.PUT)
 	public ResponseEntity<Response> setReminder(@RequestParam String noteId, @RequestParam String remindDate, HttpServletRequest req 
-			, @RequestAttribute("token") String token) throws UserNotFoundException, NoteNotFoundException, DateNotFoundException, RemainderSetException, ParseException{
+			, @RequestAttribute("token") String token) throws UserNotFoundException, NoteNotFoundException, DateNotFoundException, RemainderSetException, ParseException, UnAuthorisedAccess{
 		
 		String userId = (String) req.getAttribute("token");
 		noteService.addReminder(noteId, userId, remindDate);
@@ -200,11 +201,12 @@ public class NoteController {
 	 * @throws NoteNotFoundException
 	 * @throws DateNotFoundException
 	 * @throws RemainderSetException
+	 * @throws UnAuthorisedAccess 
 	 ******************************************************************************************************************************************************/
 	
 	@RequestMapping(value = "/delete-reminder", method = RequestMethod.PUT)
 	public ResponseEntity<Response> deleteReminder(@RequestParam String noteId, HttpServletRequest req ,
-			@RequestAttribute("token") String token) throws UserNotFoundException, NoteNotFoundException, DateNotFoundException, RemainderSetException{
+			@RequestAttribute("token") String token) throws UserNotFoundException, NoteNotFoundException, DateNotFoundException, RemainderSetException, UnAuthorisedAccess{
 		
 		String userId = (String) req.getAttribute("token");
 		noteService.removeReminder(noteId, userId);
@@ -224,10 +226,10 @@ public class NoteController {
 	 * @throws UnAuthorisedAccess
 	 **************************************************************************************************************************************************/
 	@RequestMapping(value = "/pin-note" , method = RequestMethod.PUT)
-	public ResponseEntity<Response> pinNote(@RequestParam String noteId ,  HttpServletRequest req , @RequestAttribute("token") String token) throws NoteNotFoundException, UserNotFoundException, UnAuthorisedAccess {
+	public ResponseEntity<Response> pinNote(@RequestParam String noteId , @RequestParam boolean pin , HttpServletRequest req , @RequestAttribute("token") String token) throws NoteNotFoundException, UserNotFoundException, UnAuthorisedAccess {
 		
 		String userId = (String) req.getAttribute("token");
-		noteService.pinNote(noteId, userId);
+		noteService.pinNote(noteId, userId , pin);
 		
 		Response dto = new Response();
 		dto.setMessage("Successfully pinned Note..");
@@ -236,6 +238,28 @@ public class NoteController {
 		return new ResponseEntity<>(dto, HttpStatus.OK);
 	}
 	
+	/**
+	 * @param noteId
+	 * @param color
+	 * @param req
+	 * @param token
+	 * @return
+	 * @throws NoteNotFoundException
+	 * @throws UserNotFoundException
+	 * @throws UnAuthorisedAccess
+	 */
+	@RequestMapping(value = "/add-color" , method = RequestMethod.PUT)
+	public ResponseEntity<Response> colorNote(@RequestParam String noteId , @RequestParam String color , HttpServletRequest req , @RequestAttribute("token") String token) throws NoteNotFoundException, UserNotFoundException, UnAuthorisedAccess {
+		
+		String userId = (String) req.getAttribute("token");
+		noteService.addColor(userId, noteId, color);
+		
+		Response dto = new Response();
+		dto.setMessage("Successfully added color to Note..");
+		dto.setStatus(16);
+		
+		return new ResponseEntity<>(dto, HttpStatus.OK);
+	}
 	/*********************************************************************************************************************************************************
 	 * @param noteId
 	 * @param req
@@ -244,7 +268,7 @@ public class NoteController {
 	 * @throws NoteNotFoundException
 	 * @throws UserNotFoundException
 	 * @throws UnAuthorisedAccess
-	 **************************************************************************************************************************************************************/
+	 **************************************************************************************************************************************************************//*
 	@RequestMapping(value = "/unpin-note" , method = RequestMethod.PUT)
 	public ResponseEntity<Response> unpinNote(@RequestParam String noteId ,  HttpServletRequest req , @RequestAttribute("token") String token) throws NoteNotFoundException, UserNotFoundException, UnAuthorisedAccess {
 		
@@ -257,7 +281,7 @@ public class NoteController {
 		
 		return new ResponseEntity<>(dto, HttpStatus.OK);
 	}
-	/******************************************************************************************************************************************************************
+	*//******************************************************************************************************************************************************************
 	 * @param noteId
 	 * @param req
 	 * @param token
@@ -267,10 +291,10 @@ public class NoteController {
 	 * @throws UnAuthorisedAccess
 	 *********************************************************************************************************************************************************************/
 	@RequestMapping(value = "/archive-note" , method = RequestMethod.PUT)
-	public ResponseEntity<Response> archiveNote(@RequestParam String noteId ,  HttpServletRequest req , @RequestAttribute("token") String token) throws NoteNotFoundException, UserNotFoundException, UnAuthorisedAccess {
+	public ResponseEntity<Response> archiveNote(@RequestParam String noteId , @RequestParam boolean archive , HttpServletRequest req , @RequestAttribute("token") String token) throws NoteNotFoundException, UserNotFoundException, UnAuthorisedAccess {
 		
 		String userId = (String) req.getAttribute("token");
-		noteService.archiveNote(noteId, userId);
+		noteService.archiveNote(noteId, userId , archive);
 		
 		Response dto = new Response();
 		dto.setMessage("Successfully archived Note..");
@@ -286,7 +310,7 @@ public class NoteController {
 	 * @throws NoteNotFoundException
 	 * @throws UserNotFoundException
 	 * @throws UnAuthorisedAccess
-	 **********************************************************************************************************************************************************************/
+	 **********************************************************************************************************************************************************************//*
 	@RequestMapping(value = "/unarchive-note" , method = RequestMethod.PUT)
 	public ResponseEntity<Response> unarchiveNote(@RequestParam String noteId ,  HttpServletRequest req , @RequestAttribute("token") String token) throws NoteNotFoundException, UserNotFoundException, UnAuthorisedAccess {
 		
@@ -298,7 +322,7 @@ public class NoteController {
 		dto.setStatus(16);
 		
 		return new ResponseEntity<>(dto, HttpStatus.OK);
-	}
+	}*/
 	/****************************************************************************************************************************
 	 * @param req
 	 * @param token
@@ -312,131 +336,6 @@ public class NoteController {
 		List<Note> viewNote = noteService.readArchiveNotes(userId);
 		
 		return new ResponseEntity<>(viewNote, HttpStatus.OK);
-	}
-	
-	/********************************************************************************************************************************
-	 * @param labelDto
-	 * @param req
-	 * @param token
-	 * @return
-	 * @throws CreationException
-	 * @throws LabelCreationException 
-	 * @throws UserNotFoundException 
-	 ********************************************************************************************************************************/
-	@RequestMapping(value = "/create-label" , method = RequestMethod.POST)
-	public ResponseEntity<LabelViewDTO> createLabel(@RequestBody LabelDTO labelDto , HttpServletRequest req , @RequestAttribute("token") String token) throws CreationException, UserNotFoundException, LabelCreationException{
-		
-		String userId = (String) req.getAttribute("token");
-		LabelViewDTO viewLabel = noteService.createLabel(labelDto , userId);
-		
-		return new ResponseEntity<>(viewLabel , HttpStatus.OK);
-	}
-	
-	/*********************************************************************************************************************************
-	 * @param labelName
-	 * @param req
-	 * @param token
-	 * @return
-	 * @throws CreationException
-	 * @throws UserNotFoundException
-	 * @throws LabelNotfoundException
-	 ************************************************************************************************************************************/
-	@RequestMapping(value = "/remove-label" , method = RequestMethod.DELETE)
-	public ResponseEntity<Response> deleteLabel(@RequestParam String labelName , HttpServletRequest req , @RequestAttribute("token") String token) throws CreationException, UserNotFoundException, LabelNotfoundException{
-		
-		String userId = (String) req.getAttribute("token");
-		noteService.removeLabel(labelName, userId);
-		
-		Response dto = new Response();
-		dto.setMessage("Successfully removed label..");
-		dto.setStatus(17);
-
-		return new ResponseEntity<>(dto , HttpStatus.OK);
-	}
-	
-	/*****************************************************************************************************************************************
-	 * @param labelName
-	 * @param noteId
-	 * @param req
-	 * @param token
-	 * @return
-	 * @throws CreationException
-	 * @throws UserNotFoundException
-	 * @throws LabelNotfoundException
-	 * @throws NoteNotFoundException 
-	 *****************************************************************************************************************************************/
-	@RequestMapping(value = "/add-label" , method = RequestMethod.POST)
-	public ResponseEntity<Response> addLabel(@RequestParam String noteId , @RequestBody List<String> labelList , HttpServletRequest req , @RequestAttribute("token") String token) throws CreationException, UserNotFoundException, LabelNotfoundException, NoteNotFoundException{
-		
-		String userId = (String) req.getAttribute("token");
-		noteService.addLabel(userId , noteId , labelList);
-		
-		Response dto = new Response();
-		dto.setMessage("Successfully added label..");
-		dto.setStatus(17);
-
-		return new ResponseEntity<>(dto , HttpStatus.OK);
-	}
-	
-	/*******************************************************************************************************************************************
-	 * @param req
-	 * @param token
-	 * @return
-	 * @throws UserNotFoundException
-	 ******************************************************************************************************************************************/
-	@RequestMapping(value = "/get-all-labels", method = RequestMethod.GET)
-	public ResponseEntity<List<LabelDTO>> viewAllLabel( HttpServletRequest req , @RequestAttribute("token") String token) throws UserNotFoundException{
-		
-		String userId = (String) req.getAttribute("token");
-		List<LabelDTO> viewLabel = noteService.readLabels(userId);
-		
-		return new ResponseEntity<>(viewLabel , HttpStatus.OK);
-	}
-	
-	/**
-	 * @param req
-	 * @param token
-	 * @param labelName
-	 * @return
-	 * @throws UserNotFoundException
-	 * @throws LabelNotfoundException
-	 */
-	@RequestMapping(value = "/update-label", method = RequestMethod.PUT)
-	public ResponseEntity<Response> updateLabel( HttpServletRequest req , @RequestAttribute("token") String token ,@RequestParam String labelName ,@RequestParam String renameLabel ) throws UserNotFoundException, LabelNotfoundException{
-		
-		String userId = (String) req.getAttribute("token");
-		noteService.updateLabel(userId, labelName , renameLabel);
-		
-		Response dto = new Response();
-		dto.setMessage("Successfully updated label..");
-		dto.setStatus(18);
-
-		return new ResponseEntity<>(dto , HttpStatus.OK);
-		
-	}
-	
-	/**
-	 * @param req
-	 * @param token
-	 * @param noteId
-	 * @param labelName
-	 * @return
-	 * @throws UserNotFoundException
-	 * @throws LabelNotfoundException
-	 * @throws NoteNotFoundException 
-	 */
-	@RequestMapping(value = "/remove-label-from-note", method = RequestMethod.PUT)
-	public ResponseEntity<Response> removeLabelFromNote( HttpServletRequest req , @RequestAttribute("token") String token ,@RequestParam String noteId , @RequestParam String labelName ) throws UserNotFoundException, LabelNotfoundException, NoteNotFoundException{
-		
-		String userId = (String) req.getAttribute("token");
-		noteService.removeLabelFromNote(userId, noteId, labelName);
-		
-		Response dto = new Response();
-		dto.setMessage("Successfully removed label from note.");
-		dto.setStatus(18);
-
-		return new ResponseEntity<>(dto , HttpStatus.OK);
-		
 	}
 	
 }

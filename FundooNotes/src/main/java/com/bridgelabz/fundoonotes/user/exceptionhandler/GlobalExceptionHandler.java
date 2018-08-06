@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.bridgelabz.fundoonotes.user.controllers.UserController;
 import com.bridgelabz.fundoonotes.user.exceptions.ActivationException;
+import com.bridgelabz.fundoonotes.user.exceptions.InvalidIdException;
 import com.bridgelabz.fundoonotes.user.exceptions.LoginException;
 import com.bridgelabz.fundoonotes.user.exceptions.RegistrationException;
 import com.bridgelabz.fundoonotes.user.models.Response;
@@ -50,7 +51,17 @@ public class GlobalExceptionHandler {
 	        response.setStatus(-4);
 	        return new ResponseEntity<Response>(response, HttpStatus.BAD_REQUEST);
 	    }
-
+	    
+	    @ExceptionHandler(InvalidIdException.class)
+	    public ResponseEntity<Response> handleActivationException(InvalidIdException e) {
+	    	
+	    	logger.error(e.getMessage());
+	    	
+	        Response response = new Response();
+	        response.setMessage(e.getMessage());
+	        response.setStatus(-5);
+	        return new ResponseEntity<Response>(response, HttpStatus.BAD_REQUEST);
+	    }
 
 	    @ExceptionHandler(Exception.class)
 	    public ResponseEntity<Response> handleGenericExceptions(Exception e) {

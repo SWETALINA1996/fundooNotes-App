@@ -4,6 +4,7 @@ import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
 
 import com.bridgelabz.fundoonotes.user.exceptions.ActivationException;
+import com.bridgelabz.fundoonotes.user.exceptions.InvalidIdException;
 import com.bridgelabz.fundoonotes.user.exceptions.LoginException;
 import com.bridgelabz.fundoonotes.user.exceptions.RegistrationException;
 import com.bridgelabz.fundoonotes.user.models.LoginDTO;
@@ -21,6 +22,6 @@ public interface UserService
 	
 	void forgotPassword(String emailId) throws LoginException, MessagingException;
 	
-	void resetPassword(String token , ResetPasswordDTO password) throws LoginException;
+	void resetPassword(String token , ResetPasswordDTO password) throws LoginException, InvalidIdException;
 
 }

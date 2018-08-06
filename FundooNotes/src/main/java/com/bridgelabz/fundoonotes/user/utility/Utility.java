@@ -1,5 +1,6 @@
 package com.bridgelabz.fundoonotes.user.utility;
 
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -87,5 +88,11 @@ public class Utility {
 		Matcher matcher = PASSWORD_Validate.matcher(password);
 		return matcher.find();
 	}
+
+    public static String generateUUID() {
+        
+        UUID key = UUID.randomUUID();
+        return key.toString();
+    }
 
 }
